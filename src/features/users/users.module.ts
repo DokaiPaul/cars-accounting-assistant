@@ -7,6 +7,7 @@ import { UserEntity } from './domain/entities/user.entity';
 import { BanUserByAdminUsecase } from './application/use-cases/admin/ban-user.usecase';
 import { RemoveUserByAdminUsecase } from './application/use-cases/admin/remove-user.usecase';
 import { UsersQueryRepository } from './infrastructure/users-query-repository';
+import { CqrsModule } from '@nestjs/cqrs';
 
 const entities = [UserEntity];
 const queryRepositories = [UsersQueryRepository];
@@ -17,7 +18,7 @@ const useCases = [
   RemoveUserByAdminUsecase,
 ];
 @Module({
-  imports: [TypeOrmModule.forFeature(entities)],
+  imports: [CqrsModule, TypeOrmModule.forFeature(entities)],
   controllers: [AdminUsersController],
   providers: [...useCases, ...repositories, ...queryRepositories],
 })

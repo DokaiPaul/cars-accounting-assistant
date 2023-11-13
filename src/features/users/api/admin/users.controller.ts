@@ -8,25 +8,33 @@ import {
   Put,
 } from '@nestjs/common';
 import { CreateUserDto } from '../../dto/create-user.dto';
-import { CreateUserByAdminUsecase } from '../../application/use-cases/admin/create-user.usecase';
-import { BanUserByAdminUsecase } from '../../application/use-cases/admin/ban-user.usecase';
-import { RemoveUserByAdminUsecase } from '../../application/use-cases/admin/remove-user.usecase';
+import {
+  CreateUserByAdminCommand,
+  CreateUserByAdminUsecase,
+} from '../../application/use-cases/admin/create-user.usecase';
+import {
+  BanUserByAdminCommand,
+  BanUserByAdminUsecase,
+} from '../../application/use-cases/admin/ban-user.usecase';
+import {
+  RemoveUserByAdminCommand,
+  RemoveUserByAdminUsecase,
+} from '../../application/use-cases/admin/remove-user.usecase';
 import { UserStatus } from '../../domain/entities/user.entity';
 import { BanUserDto } from '../../dto/ban-use.dto';
 import { UsersQueryRepository } from '../../infrastructure/users-query-repository';
+import { CommandBus } from '@nestjs/cqrs';
 
 @Controller('users/admin')
 export class AdminUsersController {
   constructor(
+    private readonly commandBus: CommandBus,
     private readonly usersQueryRepository: UsersQueryRepository,
-    private readonly createUserByAdmin: CreateUserByAdminUsecase,
-    private readonly banUserByAdmin: BanUserByAdminUsecase,
-    private readonly removeUserByAdmin: RemoveUserByAdminUsecase,
   ) {}
 
   @Post()
   async createUser(@Body() createUserDto: CreateUserDto) {
-    return this.createUserByAdmin.execute(createUserDto);
+    return this.commandBus.execute(new CreateUserByAdminCommand(createUserDto));
   }
 
   @Get()
@@ -45,20 +53,23 @@ export class AdminUsersController {
     const status = UserStatus.BANNED;
     const reason = banUserDto.banReason;
 
-    await this.banUserByAdmin.execute(+id, status, reason);
+    const dto = { id: +id, status, reason };
+    await this.commandBus.execute(new BanUserByAdminCommand(dto));
     return;
   }
 
   @Put('unban/:id')
   async unbanUserById(@Param('id') id: string) {
     const status = UserStatus.ACTIVE;
-    await this.banUserByAdmin.execute(+id, status);
+
+    const dto = { id: +id, status, reason: null };
+    await this.commandBus.execute(new BanUserByAdminCommand(dto));
     return;
   }
 
   @Delete(':id')
   async removeUserById(@Param('id') id: string) {
-    await this.removeUserByAdmin.execute(+id);
+    await this.commandBus.execute(new RemoveUserByAdminCommand(+id));
     return;
   }
 }

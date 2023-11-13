@@ -3,12 +3,17 @@ import { CreateUserDto } from '../../../dto/create-user.dto';
 import { UserEntity, UserStatus } from '../../../domain/entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { UsersRepository } from '../../../infrastructure/users-repository';
+import { CommandHandler } from '@nestjs/cqrs';
 
-@Injectable()
+export class CreateUserByAdminCommand {
+  constructor(public dto: CreateUserDto) {}
+}
+
+@CommandHandler(CreateUserByAdminCommand)
 export class CreateUserByAdminUsecase {
   constructor(@Inject(UsersRepository) protected repository: UsersRepository) {}
-  async execute(dto: CreateUserDto): Promise<number> {
-    const { password, login, email } = dto;
+  async execute(command: CreateUserByAdminCommand): Promise<number> {
+    const { password, login, email } = command.dto;
 
     const isEmailUnique = await this.checkEmailUnique(email);
     const isLoginUnique = await this.checkLoginUnique(login);
