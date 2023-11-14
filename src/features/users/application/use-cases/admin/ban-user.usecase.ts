@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { UsersRepository } from '../../../infrastructure/users-repository';
 import { UserStatus } from '../../../domain/entities/user.entity';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
