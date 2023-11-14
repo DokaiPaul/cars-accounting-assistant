@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UsersRepository } from '../../../infrastructure/users-repository';
 import { UserStatus } from '../../../domain/entities/user.entity';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 export class BanUserByAdminCommand {
   constructor(
@@ -8,8 +9,10 @@ export class BanUserByAdminCommand {
   ) {}
 }
 
-@Injectable()
-export class BanUserByAdminUsecase {
+@CommandHandler(BanUserByAdminCommand)
+export class BanUserByAdminUsecase
+  implements ICommandHandler<BanUserByAdminCommand>
+{
   constructor(@Inject(UsersRepository) protected repository: UsersRepository) {}
 
   async execute(command: BanUserByAdminCommand): Promise<void> {

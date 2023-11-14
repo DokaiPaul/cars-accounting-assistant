@@ -1,16 +1,18 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { CreateUserDto } from '../../../dto/create-user.dto';
 import { UserEntity, UserStatus } from '../../../domain/entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { UsersRepository } from '../../../infrastructure/users-repository';
-import { CommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 export class CreateUserByAdminCommand {
   constructor(public dto: CreateUserDto) {}
 }
 
 @CommandHandler(CreateUserByAdminCommand)
-export class CreateUserByAdminUsecase {
+export class CreateUserByAdminUsecase
+  implements ICommandHandler<CreateUserByAdminCommand>
+{
   constructor(@Inject(UsersRepository) protected repository: UsersRepository) {}
   async execute(command: CreateUserByAdminCommand): Promise<number> {
     const { password, login, email } = command.dto;

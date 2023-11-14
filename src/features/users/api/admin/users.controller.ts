@@ -8,18 +8,9 @@ import {
   Put,
 } from '@nestjs/common';
 import { CreateUserDto } from '../../dto/create-user.dto';
-import {
-  CreateUserByAdminCommand,
-  CreateUserByAdminUsecase,
-} from '../../application/use-cases/admin/create-user.usecase';
-import {
-  BanUserByAdminCommand,
-  BanUserByAdminUsecase,
-} from '../../application/use-cases/admin/ban-user.usecase';
-import {
-  RemoveUserByAdminCommand,
-  RemoveUserByAdminUsecase,
-} from '../../application/use-cases/admin/remove-user.usecase';
+import { CreateUserByAdminCommand } from '../../application/use-cases/admin/create-user.usecase';
+import { BanUserByAdminCommand } from '../../application/use-cases/admin/ban-user.usecase';
+import { RemoveUserByAdminCommand } from '../../application/use-cases/admin/remove-user.usecase';
 import { UserStatus } from '../../domain/entities/user.entity';
 import { BanUserDto } from '../../dto/ban-use.dto';
 import { UsersQueryRepository } from '../../infrastructure/users-query-repository';
@@ -53,7 +44,7 @@ export class AdminUsersController {
     const status = UserStatus.BANNED;
     const reason = banUserDto.banReason;
 
-    const dto = { id: +id, status, reason };
+    const dto = { id: +id, status, banReason: reason };
     await this.commandBus.execute(new BanUserByAdminCommand(dto));
     return;
   }
@@ -62,7 +53,7 @@ export class AdminUsersController {
   async unbanUserById(@Param('id') id: string) {
     const status = UserStatus.ACTIVE;
 
-    const dto = { id: +id, status, reason: null };
+    const dto = { id: +id, status, banReason: null };
     await this.commandBus.execute(new BanUserByAdminCommand(dto));
     return;
   }

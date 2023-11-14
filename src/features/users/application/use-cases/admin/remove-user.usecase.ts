@@ -1,13 +1,16 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { UsersRepository } from '../../../infrastructure/users-repository';
 import { UserStatus } from '../../../domain/entities/user.entity';
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 
 export class RemoveUserByAdminCommand {
   constructor(public userId: number) {}
 }
 
-@Injectable()
-export class RemoveUserByAdminUsecase {
+@CommandHandler(RemoveUserByAdminCommand)
+export class RemoveUserByAdminUsecase
+  implements ICommandHandler<RemoveUserByAdminCommand>
+{
   constructor(@Inject(UsersRepository) protected repository: UsersRepository) {}
 
   async execute(command: RemoveUserByAdminCommand): Promise<void> {
